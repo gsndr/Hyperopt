@@ -70,7 +70,7 @@ def NN(x_train, y_train, params):
     tic = time.time()
     h = model.fit(x_train, y_train,
                   batch_size=params["batch"],
-                  epochs=10,
+                  epochs=150,
                   verbose=2,
                   callbacks=callbacks_list,
                   validation_data=(XValidation, YValidation))
@@ -204,7 +204,7 @@ def hypersearch(train_X, train_Y, test_X, test_Y,  testPath, n_class):
                                    "neurons2": hp.choice("neurons2", [32, 64, 128, 256, 512]),
                                    "neurons3": hp.choice("neurons3", [32, 64, 128, 256, 512])}
     trials = Trials()
-    best = fmin(fit_and_score, space, algo=tpe.suggest, max_evals=3, trials=trials,
+    best = fmin(fit_and_score, space, algo=tpe.suggest, max_evals=20, trials=trials,
                 rstate=np.random.RandomState(my_seed))
     #best_params = hyperopt.space_eval(space, best)
 
