@@ -1,5 +1,5 @@
 import pandas as pd
-
+import numpy as np
 import Utils
 import HyperModel
 from sklearn.metrics import confusion_matrix
@@ -11,8 +11,9 @@ df=pd.read_csv(path+'Test.csv')
 print(X.shape)
 X_test,y_test=Utils.getXY(df,label)
 n_class=2
-model, time =HyperModel.hypersearch(X,y, X_test,y_test, 'prova', path, n_class)
+model, time =HyperModel.hypersearch(X,y, X_test,y_test, path, n_class)
 model.save(path+'NN.h5')
-y_pred=model.predict(X_test)
-cm=confusion_matrix(y_test,y_pred)
+Y_predicted=model.predict(X_test)
+Y_predicted = np.argmax(Y_predicted, axis=1)
+cm=confusion_matrix(y_test,Y_predicted)
 print(cm)

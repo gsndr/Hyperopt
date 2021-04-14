@@ -70,7 +70,7 @@ def NN(x_train, y_train, params):
     tic = time.time()
     h = model.fit(x_train, y_train,
                   batch_size=params["batch"],
-                  epochs=5,
+                  epochs=10,
                   verbose=2,
                   callbacks=callbacks_list,
                   validation_data=(XValidation, YValidation))
@@ -79,7 +79,7 @@ def NN(x_train, y_train, params):
     time_tot=toc-tic
     scores = [h.history['val_loss'][epoch] for epoch in range(len(h.history['loss']))]
     score = min(scores)
-    print(score)
+    #print(score)
     y_test = np.argmax(YValidation, axis=1)
 
     Y_predicted = model.predict(XValidation, verbose=0, use_multiprocessing=True, workers=12)
@@ -97,7 +97,7 @@ def fit_and_score(params):
     global SavedParameters
     y_train = np_utils.to_categorical(global_config.train_Y, global_config.n_class)
     model, h, val = NN(global_config.train_X, y_train, params)
-    print(val)
+    #print(val)
 
     print("start predict")
 
@@ -106,13 +106,11 @@ def fit_and_score(params):
     elapsed_time = val['time']
     cf = confusion_matrix(global_config.test_Y, Y_predicted)
     #print(cf)
-    # print("test F1_score: " + str(f1_score(YTestGlobal, Y_predicted)))
     K.clear_session()
     SavedParameters.append(val)
-    print(SavedParameters)
+    #print(SavedParameters)
     global best_val_acc
-    #global best_test_acc
-    # print("val acc: " + str(val["F1_score_val"]))
+
 
 
     SavedParameters[-1].update(
@@ -131,12 +129,12 @@ def fit_and_score(params):
 
     r = Utils.getResult(cm_val, global_config.n_class)
     SavedParameters[-1].update({
-        "OA_val": r[0],
-        "P_val": r[2],
-        "R_val": r[3],
-        "F1_val": r[4],
-        "FAR_val": r[5],
-        "TPR_val": r[6]
+        "OA_val": r[4],
+        "P_val": r[6],
+        "R_val": r[7],
+        "F1_val": r[8],
+        "FAR_val": r[9],
+        "TPR_val": r[10]
     })
     SavedParameters[-1].update({
         "TP_test": cf[0][0],"FN_test": cf[0][1], "FP_test": cf[1][0], "TN_test": cf[1][1]
@@ -146,12 +144,12 @@ def fit_and_score(params):
                [SavedParameters[-1]["FP_test"], SavedParameters[-1]["TN_test"]]]
     r = Utils.getResult(cm_test, False)
     SavedParameters[-1].update({
-        "OA_test": r[0],
-        "P_test": r[2],
-        "R_test": r[3],
-        "F1_test": r[4],
-        "FAR_test": r[5],
-        "TPR_test": r[6]
+        "OA_test": r[4],
+        "P_test": r[6],
+        "R_test": r[7],
+        "F1_test": r[8],
+        "FAR_test": r[9],
+        "TPR_test": r[10]
     })
     # Save model
     if SavedParameters[-1]["F1_val"] > global_config.best_accuracy:
@@ -194,11 +192,10 @@ def reset_global_variables(train_X, train_Y, test_X, test_Y):
 
 
 
-def hypersearch(train_X, train_Y, test_X, test_Y, modelName, testPath, n_class):
+def hypersearch(train_X, train_Y, test_X, test_Y,  testPath, n_class):
     reset_global_variables(train_X, train_Y, test_X, test_Y)
     global_config.n_class=n_class
     global_config.test_path = testPath
-    bs = [32, 64, 128, 256, 512]
     space = {"batch": hp.choice("batch", [32, 64, 128, 256, 512]),
                                    'dropout1': hp.uniform("dropout1", 0, 1),
                                    'dropout2': hp.uniform("dropout2", 0, 1),
@@ -207,9 +204,9 @@ def hypersearch(train_X, train_Y, test_X, test_Y, modelName, testPath, n_class):
                                    "neurons2": hp.choice("neurons2", [32, 64, 128, 256, 512]),
                                    "neurons3": hp.choice("neurons3", [32, 64, 128, 256, 512])}
     trials = Trials()
-    best = fmin(fit_and_score, space, algo=tpe.suggest, max_evals=10, trials=trials,
+    best = fmin(fit_and_score, space, algo=tpe.suggest, max_evals=3, trials=trials,
                 rstate=np.random.RandomState(my_seed))
-    best_params = hyperopt.space_eval(space, best)
+    #best_params = hyperopt.space_eval(space, best)
 
 
     return global_config.best_model, global_config.best_time
