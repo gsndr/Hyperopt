@@ -156,6 +156,8 @@ def fit_and_score(params):
         print("new saved model:" + str(SavedParameters[-1]))
         global_config.best_model=model
         global_config.best_accuracy= SavedParameters[-1]["F1_val"]
+    best_score = SavedParameters[-1]["F1_val"]
+    print("Best score " + str(best_score))
 
     '''
     if SavedParameters[-1]["F1_test"] > best_test_acc:
@@ -166,13 +168,13 @@ def fit_and_score(params):
     SavedParameters = sorted(SavedParameters, key=lambda i: i['F1_val'], reverse=True)
 
     try:
-        with open(global_config.test_path+'Results.csv', 'w', newline='') as csvfile:
+        with open(global_config.test_path + 'Results.csv', 'w', newline='') as csvfile:
             writer = csv.DictWriter(csvfile, fieldnames=SavedParameters[0].keys())
             writer.writeheader()
             writer.writerows(SavedParameters)
     except IOError:
         print("I/O error")
-    return {'loss': -val["F1_val"], 'status': STATUS_OK}  # cambia
+    return {'loss': -best_score, 'status': STATUS_OK}  # cambia
 
 
 def reset_global_variables(train_X, train_Y, test_X, test_Y):
