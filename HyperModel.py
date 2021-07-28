@@ -199,12 +199,12 @@ def hypersearch(train_X, train_Y, test_X, test_Y,  testPath, n_class):
     global_config.n_class=n_class
     global_config.test_path = testPath
     space = {"batch": hp.choice("batch", [32, 64, 128, 256, 512]),
-                                   'dropout1': hp.uniform("dropout1", 0, 1),
-                                   'dropout2': hp.uniform("dropout2", 0, 1),
-                                   "learning_rate": hp.uniform("learning_rate", 0.0001, 0.001),
-                                   "neurons1" : hp.choice("neurons1",[32, 64, 128, 256, 512]),
-                                   "neurons2": hp.choice("neurons2", [32, 64, 128, 256, 512]),
-                                   "neurons3": hp.choice("neurons3", [32, 64, 128, 256, 512])}
+             'dropout1': hp.uniform("dropout1", 0, 1),
+             'dropout2': hp.uniform("dropout2", 0, 1),
+             "learning_rate": hp.loguniform("learning_rate", np.log(0.0001), np.log(0.01)),
+             "neurons1": hp.choice("neurons1", [128, 256, 512]),
+             "neurons2": hp.choice("neurons2", [64, 128, 256]),
+             "neurons3": hp.choice("neurons3", [32, 64, 128])}
     trials = Trials()
     best = fmin(fit_and_score, space, algo=tpe.suggest, max_evals=20, trials=trials,
                 rstate=np.random.RandomState(my_seed))
